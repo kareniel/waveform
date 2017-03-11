@@ -1,60 +1,189 @@
 const yo = require('yo-yo')
 
-const width = 500
+const width = 800
 const height = 120
+const canvas = yo`
+  <canvas 
+    width=${width} 
+    height=${height}
+    onmousedown=${onmousedown}
+  ></canvas>`
 
-const el = yo`<canvas width=${width} height=${height}></canvas>`
-const canvasCtx = el.getContext('2d')
-canvasCtx.clearRect(0, 0, 500, 120)
+document.addEventListener('mousemove', mousemove)
 
-document.body.appendChild(el)
+let ctx = canvas.getContext('2d')
 
-window.addEventListener('load', function (e) {
-  const audioCtx = new AudioContext
-  const analyser = audioCtx.createAnalyser() 
+document.body.appendChild(canvas)
 
-  fetch('/data/cosmicosmo-twoson.mp3')
-    .then(res => res.arrayBuffer())
-    .then(arrayBuffer => audioCtx.decodeAudioData(arrayBuffer))
-    .then(audioBuffer => {
-      const source = audioCtx.createBufferSource()
-      source.buffer = audioBuffer
-      source.connect(analyser)
-      analyser.connect(audioCtx.destination)
-      source.start(0)
+let x 
+let mouseX, selecting
+let leftMarker = null
+let rightMarker = null    
 
-      const bufferLength = analyser.fftSize
-      const dataArray = new Uint8Array(bufferLength)
+function mousemove (e) {
+  x = e.clientX - canvas.getBoundingClientRect().left
+  if (x < 0) {
+    return mouseX = 1
+  }
+  if (x >= width) {
+    return mouseX = width - 1
+  }
+  return mouseX = x
+}
 
-      function draw () {
-        requestAnimationFrame(draw)
-        
-        analyser.getByteTimeDomainData(dataArray)
+function onmousedown (e) {
+  if (mouseX === leftMarker) {
+    // reposition left marker
+    return repositionLeftMarker()
+  }
 
-        canvasCtx.fillStyle = 'rgb(150, 150, 150)'
-        canvasCtx.fillRect(0, 0, 500, 120)
-        canvasCtx.lineWidth = 2
-        canvasCtx.strokeStyle = 'blue'
-        canvasCtx.beginPath()
+  if (mouseX === rightMarker) {
+    // reposition right marker
+    return repositionRightMarker()
+  }
 
-        let x = 0, y = height/2, val = 0
+  selecting = true
+  leftMarker = e.clientX - e.target.getBoundingClientRect().left
+  rightMarker = null
 
-        const sliceWidth = width * 1.0 / bufferLength
+  document.addEventListener('mouseup', mouseup)
+  document.addEventListener('mousemove', mousemove)
 
-        canvasCtx.moveTo(x, y)
-        dataArray.forEach((item, i) => {
-          val = item/128
-          y = val * height/2
-          canvasCtx.lineTo(x, y)
-          x += sliceWidth
-        })
-        canvasCtx.lineTo(width, height / 2)
-        canvasCtx.stroke()
-      }
+  function mouseup (e) {
+    if (leftMarker === rightMarker) {
+      rightMarker = null
+    }
 
-      draw()
+    if (leftMarker > rightMarker) {
+      const left = leftMarker
+      leftMarker = rightMarker
+      rightMarker = left
+    }
 
-    })
-})
+    if (leftMarker < 0) {
+      leftMarker = 1
+    }
 
-// 
+    if (rightMarker > width) {
+      rightMarker = width - 1
+    }
+
+    document.removeEventListener('mouseup', mouseup)
+    document.removeEventListener('mousemove', mousemove)
+
+    selecting = false
+    console.log(leftMarker, rightMarker)
+  }
+
+  function mousemove (e) {
+    rightMarker = e.clientX - canvas.getBoundingClientRect().left
+  }
+}
+
+function repositionLeftMarker () {
+  selecting = true
+  document.addEventListener('mouseup', mouseup1)
+  document.addEventListener('mousemove', mousemove1)
+
+  function mouseup1 () {
+    if (leftMarker > rightMarker) {
+      const left = leftMarker
+      leftMarker = rightMarker
+      rightMarker = left
+    }
+    document.removeEventListener('mouseup', mouseup1)
+    document.removeEventListener('mousemove', mousemove1)
+    console.log(leftMarker, rightMarker)
+    selecting = false
+  }
+
+  function mousemove1 (e) {
+    x = e.clientX - canvas.getBoundingClientRect().left
+
+    if (leftMarker < 0) {
+      return leftMarker = 1
+    }
+
+    if (rightMarker > width) {
+      return rightMarker = width - 1
+    }
+
+    leftMarker = x
+  }
+}
+
+function repositionRightMarker () {
+  selecting = true
+  document.addEventListener('mouseup', mouseup2)
+  document.addEventListener('mousemove', mousemove2)
+
+  function mouseup2 () {
+    if (leftMarker > rightMarker) {
+      const left = leftMarker
+      leftMarker = rightMarker
+      rightMarker = left
+    }
+    document.removeEventListener('mouseup', mouseup2)
+    document.removeEventListener('mousemove', mousemove2)
+    console.log(leftMarker, rightMarker)
+    selecting = false
+  }
+
+  function mousemove2 (e) {
+    rightMarker = e.clientX - canvas.getBoundingClientRect().left
+    
+  }
+}
+
+function render () {
+  requestAnimationFrame(render)
+  ctx.clearRect(0, 0, width, height)
+  ctx.fillStyle = 'rgb(150, 150, 150)'
+  ctx.fillRect(0, 0, width, height)
+  drawMarkers()
+  drawCursor()
+  if (mouseX === leftMarker || mouseX === rightMarker) {
+    document.body.style.cursor = 'col-resize'
+  } else {
+    document.body.style.cursor = 'pointer'
+  }
+}
+
+render()
+
+function drawMarkers () {
+  if (leftMarker) {
+    ctx.lineWidth = 2
+    ctx.strokeStyle = 'black'
+    ctx.beginPath()
+    ctx.moveTo(leftMarker, height)
+    ctx.lineTo(leftMarker, 0)
+    ctx.stroke()
+  }
+
+  if (rightMarker) {
+    ctx.lineWidth = 2
+    ctx.strokeStyle = 'black'
+    ctx.beginPath()
+    ctx.moveTo(rightMarker, height)
+    ctx.lineTo(rightMarker, 0)
+    ctx.stroke()
+  }
+
+  if (leftMarker && rightMarker) {
+    ctx.beginPath()
+    ctx.fillStyle = 'rgb(100, 100, 100)'
+    ctx.fillRect(leftMarker, 0, rightMarker - leftMarker, height)
+  }
+}
+
+function drawCursor () {
+  if ((mouseX === leftMarker) || (mouseX === rightMarker)) {
+    ctx.lineWidth = 2
+    ctx.strokeStyle = 'blue'
+    ctx.beginPath()
+    ctx.moveTo(mouseX, height)
+    ctx.lineTo(mouseX, 0)
+    ctx.stroke()
+  }
+}
