@@ -12,6 +12,7 @@
     "budo": "^9.4.7"
   },
   "dependencies": {
+    "audiobuffer-to-wav": "^1.0.0",
     "three": "^0.84.0",
     "yo-yo": "^1.4.0"
   }

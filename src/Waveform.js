@@ -1,3 +1,4 @@
+const toWav = require('audiobuffer-to-wav')
 const Handle = {x: null, hovered: false}
 const defaultOptions = { width: 960, height: 150 }
 const BLUE = 'rgb(2, 123, 231)'
@@ -10,73 +11,116 @@ module.exports = function Waveform (url, opts = defaultOptions) {
 
   this.init = () => {
     this.loading = true
-    this.canvas = document.createElement('canvas')
+    
+    this.segments = []
+    this.el = document.createElement('div')
+
+    this.canvas = this.el.appendChild(document.createElement('canvas'))
     this.ctx = this.canvas.getContext('2d')
     this.canvas.width = opts.width
     this.canvas.height = opts.height
     this.canvas.style.cursor = 'pointer'
-    this.canvas.addEventListener('mousedown', e => {
-      if (this.withinReach(this.leftHandle.x)) { 
-        return this.onDragMarker(this.leftHandle) 
-      }
-      
-      if (this.withinReach(this.rightHandle.x)) { 
-        return this.onDragMarker(this.rightHandle) 
-      }
-
-      this.leftHandle.x = this.mouseX
-      this.rightHandle.x = null
-      this.onDrag(e)
-    })
+    this.canvas.addEventListener('mousedown', e => this.handleClick(e))
 
     this.leftHandle = Object.create(Handle)
     this.rightHandle = Object.create(Handle)
     this.selecting = false
+    this.looping = false
 
     this.audioCtx = new AudioContext()
 
-    this.playButton = document.createElement('button')
-    this.playButton.innerHTML = 'Play!'
-    this.playButton.addEventListener('click', e => this.play())
+    const playButton = this.el.appendChild(document.createElement('button'))
+    playButton.innerHTML = 'Play!'
+    playButton.addEventListener('click', e => this.play())
 
-    this.loopingButton = document.createElement('button')
-    this.loopingButton.innerHTML = 'Looping: Off'
-    this.loopingButton.disabled = true
-    this.loopingButton.addEventListener('click', e => this.toggleLooping())
-    this.looping = false
+    const loopingButton = this.el.appendChild(document.createElement('button'))
+    loopingButton.innerHTML = 'Looping: Off'
+    loopingButton.disabled = true
+    loopingButton.addEventListener('click', e => this.toggleLooping())
+
+    const exportButton = this.el.appendChild(document.createElement('button'))
+    exportButton.innerHTML = 'Save Segment'
+    exportButton.addEventListener('click', e => this.saveSegment())
 
     fetch(url)
       .then(res => res.arrayBuffer())
       .then(arrayBuffer => this.audioCtx.decodeAudioData(arrayBuffer))
-      .then(audioBuffer => {
-        this.loading = false
-        this.audioBuffer = audioBuffer
-        this.peaks = []
-        
-        const arr = audioBuffer.getChannelData(0)
-        const width = Math.ceil(arr.length / this.canvas.width)
-        const height = this.canvas.height / 2
+      .then(audioBuffer => this.loadAudioBuffer(audioBuffer))
+  }
 
-        let samples, min, max, s, pair
+  this.handleClick = e => {
+    if (this.withinReach(this.leftHandle.x)) { 
+      return this.onDragMarker(this.leftHandle) 
+    }
+    
+    if (this.withinReach(this.rightHandle.x)) { 
+      return this.onDragMarker(this.rightHandle) 
+    }
 
-        for (let i = 0; i < this.canvas.width; i++) {
-          samples = arr.slice(i*width, i*width+width)
-          min = samples[0]
-          max = samples[0]
+    this.leftHandle.x = this.mouseX
+    this.rightHandle.x = null
+    this.onDrag(e)
+  }
 
-          for (let i = 0; i < samples.length; i++) {
-            s = samples[i]
-            max = s > max ? s : max
-            min = s < min ? s : min
-          }
+  this.loadAudioBuffer = audioBuffer => {
+    this.loading = false
+    this.audioBuffer = audioBuffer
+    this.peaks = []
+    
+    const arr = audioBuffer.getChannelData(0)
+    const width = Math.ceil(arr.length / this.canvas.width)
+    const height = this.canvas.height / 2 
 
-          pair = [(min * height) + height, (max * height) + height]
+    let samples, min, max, s, pair
 
-          this.peaks.push(pair)  
-        }
+    for (let i = 0; i < this.canvas.width; i++) {
+      samples = arr.slice(i*width, i*width+width)
+      min = samples[0]
+      max = samples[0]
 
-        console.log(this.peaks)
-      })
+      for (let i = 0; i < samples.length; i++) {
+        s = samples[i]
+        max = s > max ? s : max
+        min = s < min ? s : min
+      }
+
+      pair = [(min * (height*1.5)) + height, (max * (height*1.5)) + height]
+
+      this.peaks.push(pair)  
+    }
+  }
+
+  this.saveSegment = () => {
+    const begin = (this.leftHandle.x / this.canvas.width) * this.audioBuffer.duration
+    const end = (this.rightHandle.x / this.canvas.width) * this.audioBuffer.duration
+
+    const startOffset = this.audioBuffer.sampleRate * begin
+    const endOffset = this.audioBuffer.sampleRate * end
+    const frameCount = endOffset - startOffset
+
+    const buffer = this.audioCtx.createBuffer(2, frameCount, this.audioCtx.sampleRate)
+    const anotherArray = new Float32Array(frameCount)
+
+    for (let channel = 0; channel < this.audioBuffer.numberOfChannels; channel ++) {
+      this.audioBuffer.copyFromChannel(anotherArray, channel, startOffset)
+      buffer.copyToChannel(anotherArray, channel, 0)
+    }
+
+    const wav = toWav(buffer)
+    const blob = new Blob([wav], {type: 'audio/wav'})
+
+    this.segments.push(blob)
+
+    console.log(this.segments)
+  }
+
+  this.downloadSegment = (blob) => {
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.download = 'segment.wav'
+    a.href = url
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   this.toggleLooping = () => {
