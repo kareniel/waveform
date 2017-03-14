@@ -79,6 +79,7 @@ module.exports = function Waveform (url, opts = defaultOptions) {
       max = samples[0]
 
       for (let i = 0; i < samples.length; i++) {
+
         s = samples[i]
         max = s > max ? s : max
         min = s < min ? s : min
@@ -110,8 +111,6 @@ module.exports = function Waveform (url, opts = defaultOptions) {
     const blob = new Blob([wav], {type: 'audio/wav'})
 
     this.segments.push(blob)
-
-    console.log(this.segments)
   }
 
   this.downloadSegment = (blob) => {
@@ -226,13 +225,6 @@ module.exports = function Waveform (url, opts = defaultOptions) {
 
     hasSelection = (this.leftHandle.x && this.rightHandle.x)
 
-    /* selection */
-    // if (hasSelection) {
-    //   this.ctx.beginPath()
-    //   this.ctx.fillStyle = 'rgb(20, 20, 20)'
-    //   this.ctx.fillRect(this.leftHandle.x, 0, this.rightHandle.x - this.leftHandle.x, this.canvas.height)
-    // }
-
     /* waveform */
     if (this.peaks) {
       this.ctx.lineWidth = 1
@@ -291,7 +283,6 @@ module.exports = function Waveform (url, opts = defaultOptions) {
     this.ctx.lineTo(this.getCurrentTime() / this.audioBuffer.duration * this.canvas.width , 0)
     this.ctx.stroke()
     
-
     /* hover cursor */
     if (!this.leftHandle.hovered && !this.rightHandle.hovered) {
       this.ctx.lineWidth = 1
