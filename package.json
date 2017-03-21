@@ -9,11 +9,13 @@
   "author": "kareniel",
   "license": "MIT",
   "devDependencies": {
-    "budo": "^9.4.7"
+    "budo": "^9.4.7",
+    "tachyons": "^4.6.1"
   },
   "dependencies": {
     "audiobuffer-to-wav": "^1.0.0",
-    "three": "^0.84.0",
-    "yo-yo": "^1.4.0"
+    "bel": "^4.5.1",
+    "choo": "5.0.0-2",
+    "three": "^0.84.0"
   }
 }
