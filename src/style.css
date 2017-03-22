@@ -1,6 +1,79 @@
-html {
-  /*margin: 0 5em;*/
+body {
   --black: #222;
   background-color: var(--black);
   color: white;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  max-width: 100vw;
+}
+
+#top-half {
+  margin: auto;
+  display: flex;
+  height: 50vh;
+  width: 99.8vw;
+}
+
+#timeline {
+  display: block;
+  width: 100%;
+  overflow-x: scroll;
+  padding: 60px 30px;
+}
+
+.rail {
+  width: auto;
+  height: 120px;
+  display: inline-block;
+  background-color: black;
+  overflow-x: scroll;
+  position: relative;
+}
+
+.segment-block {
+  cursor: move; /* fallback if grab cursor is unsupported */
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+  background-color: rgba(255,255,255,0.5);
+  height: 120px;
+  width: 240px;
+  display: inline-block;
+  position: absolute;
+}
+
+.segment-block:active {
+  cursor: move; /* fallback if grab cursor is unsupported */
+  cursor: grabbing;
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+}
+
+/* - - - - - - - - */
+
+#bottom-half {
+  margin: auto;
+  display: flex;
+  height: 50vh;
+  width: 100%;
+}
+
+
+#segment-browser {
+  display: flex;
+  width: 50vw;
+  height: 100%;
+  margin: auto;
+}
+
+#waveform-editor {
+  display: flex;
+  width: 50vw;
+  height: 100%;
+  margin: auto;
+  overflow-x: scroll;
 }
