@@ -1,5 +1,5 @@
 const choo = require('choo')
-const html = require('bel')
+const html = require('choo/html')
 
 const app = choo()
 
@@ -8,10 +8,26 @@ app.route('/', layout)
 
 app.mount('body')
 
+const dragIcon = html`<img src="#">`
+
 function layout (state, emit) {
-  const bars = 96
+  let bodyEl = document.getElementsByTagName('body')[0]
+  const bars = 80
   const barWidth = 12
   const fullWidth = bars * barWidth
+
+  let distance, rect, newPos, leftBound, rightBound
+
+  const segment = html`
+    <div 
+      draggable="true"
+      class="segment-block" 
+      onmousedown=${onMouseDown}
+      ondrag=${onDrag}
+      ondragstart=${onDragStart}
+      ondrop=${onDrop}
+      ondragend=${onDragEnd}>
+    </div>`
 
   return html`
     <body>
@@ -25,16 +41,13 @@ function layout (state, emit) {
       <div id="top-half">
         <section id="timeline">
 
-          <div class="rail" style="min-width: ${fullWidth}px;">
-            <div class="segment-block" style="left: 240px">
-            </div>
-          </div>
-
-          <br>
-
-          <div class="rail" style="min-width: ${fullWidth}px;">
-            <div class="segment-block" style="left: 480px">
-            </div>
+          <div 
+            class="rail" 
+            ondragenter=${onDragEnter}
+            ondragover=${onDragOver}
+            ondragleave=${onDragLeave}
+            style="min-width: ${fullWidth}px;">
+            ${segment}
           </div>
 
         </section>
@@ -51,6 +64,60 @@ function layout (state, emit) {
       </div>
     </body>
   `
+
+  function onDrag (e) {
+  }
+
+  function onMouseDown (e) {
+    // keep track of the distance between mouse and left side of block
+    distance = Math.abs(e.x - segment.getBoundingClientRect().left)
+  }
+
+  function onDragStart (e) {
+    e.dataTransfer.setDragImage(dragIcon, -9999, -9999)
+  }
+
+  function onDragEnter (e) {
+
+  }
+
+  function onDragOver (e) {
+    if (e.preventDefault) {
+      e.preventDefault()
+    }
+
+    e.dataTransfer.dropEffect = 'move'
+
+    let segmentRect = segment.getBoundingClientRect()
+    let width = segment.getBoundingClientRect().right - segment.getBoundingClientRect().left
+    let leftBound = this.getBoundingClientRect().left
+    let rightBound = fullWidth - width
+
+    newPos = (e.x - distance - leftBound)
+
+    if (newPos <= 0) {
+      newPos = 0
+    }
+
+    if (newPos >= rightBound) {
+      newPos = rightBound
+    }
+
+    segment.style.left = newPos > 0 ? newPos + 'px' : '0px'
+
+    return false
+  }
+
+  function onDragLeave (e) {
+
+  }
+
+  function onDragEnd (e) {
+  }
+
+  function onDrop (e) {
+
+  }
 }
 
 function store (state, emitter) {
