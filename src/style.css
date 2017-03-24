@@ -16,6 +16,7 @@ body {
   display: flex;
   height: 50vh;
   width: 99.8vw;
+  padding: 0;
 }
 
 #timeline {
@@ -23,15 +24,22 @@ body {
   width: 100%;
   overflow-x: scroll;
   padding: 60px 30px;
+  margin: 0;
 }
 
-.rail {
+.track {
   width: auto;
   height: 120px;
   display: inline-block;
   background-color: black;
   overflow-x: scroll;
   position: relative;
+}
+
+.track-grid {
+  position: absolute;
+  left: 0;
+  top: 0;
 }
 
 .segment-block {
