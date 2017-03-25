@@ -1,4 +1,5 @@
 const html = require('choo/html')
+
 const trackGridEl = require('./track-grid.el')
 const dragIcon = html`<img src="#">`
 
@@ -21,18 +22,19 @@ function style (block) {
 
 module.exports = function trackEl(track, emit) {
   return html`
-    <div class="track" style="min-width: ${fullWidth}px;">
+    <div data-id=${track.id} class="track" style="min-width: ${fullWidth}px;">
       ${trackGridEl({fullWidth, gridWidth})}
-      ${track.map(block => html`    
+      ${track.segments.map(block => html`    
         <div 
           class="segment-block is-grabbable" 
-          onmousedown=${onMouseDown} 
+          onmousedown=${onMouseDown}
           style=${style(block)}>
+          ${block.title}
         </div>`
       )}
     </div>
   `
-
+  
   function onMouseDown (e) {
     // keep track of the distance between mouse and left side of block
     selectedEl = e.target

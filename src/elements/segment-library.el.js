@@ -1,5 +1,15 @@
 const html = require('choo/html')
 
+const barWidth = 12
+
+function style (block) {
+  return `
+    background-color: ${block.color};
+    width: ${block.length * barWidth}px; 
+    left: ${block.x * barWidth}px;
+  `
+}
+
 module.exports = function segmentLibrary (state, emit) {
   return html `
     <div id="segment-library">
@@ -12,10 +22,12 @@ module.exports = function segmentLibrary (state, emit) {
           }
 
           return html`
-            <li 
+            <li
+              data-segment=${JSON.stringify(segment)}
               class="${classes.join(' ')}" 
               onclick=${e => select(segment)} 
-              onmousedown=${handleDrag}>
+              onmousedown=${handleDrag}
+              style=${style(segment)}>
               ${segment.title}
             </li>
           `
@@ -25,25 +37,37 @@ module.exports = function segmentLibrary (state, emit) {
   `
 
   function select (segment) {
+    if (segment === state.selectedSegment) {
+      segment = null
+    }
     emit('editor:selectSegment', segment)
+  }
+
+  function addSegmentToTrack (segmentData, trackId) {
+    emit('timeline:addSegmentToTrack', {segmentData, trackId})
   }
 
   function handleDrag (e) {
     let selectedEl = e.target
-    let rect, elCopy
     let delta = {x: 0, y: 0}
+    let trackElements = [...document.getElementsByClassName('track')]
+    let rect, elCopy, hoveredTrack
 
     document.addEventListener('mousemove', onDragStart)
     document.addEventListener('mouseup', onDragEnd)
 
     function onDragStart (e) {
       e.preventDefault()
+
       elCopy = selectedEl.cloneNode(true)
       elCopy.style.position = 'absolute'
+      elCopy.style.pointerEvents = 'none'
+      elCopy.style.border = 'none'
       rect = selectedEl.getBoundingClientRect()
       delta.x = Math.abs(e.x - rect.left)
       delta.y = Math.abs(e.y - rect.top)
 
+      document.body.classList.add('grabbing')
       document.body.appendChild(elCopy)
       document.addEventListener('mousemove', onDrag)
       document.removeEventListener('mousemove', onDragStart)
@@ -51,11 +75,50 @@ module.exports = function segmentLibrary (state, emit) {
 
     function onDrag (e) {
       e.preventDefault()
+
+      hoveredTrack = trackElements.filter(el => el.contains(e.target))[0]
+
+      if (hoveredTrack) {
+        return snapToTrack(e.x, e.y, hoveredTrack)
+      } 
+      
       elCopy.style.left = (e.x - delta.x) + 'px'
-      elCopy.style.top = (e.y - delta.y) + 'px'
+      elCopy.style.top = (e.y - delta.y) + 'px'  
+
+    }
+
+    function snapToTrack (x, y, track) {
+      let rect = track.getBoundingClientRect()
+      let left = (x - delta.x)
+      let top = (y - delta.y)
+
+      if (Math.abs(rect.top - top) < 12) {
+
+
+        // snap to top of track
+        top = rect.top
+
+        // snap to grid
+        left = left - (left % 12)
+      } else {
+
+      }
+
+      elCopy.style.left = left + 'px'
+      elCopy.style.top = top + 'px'
     }
 
     function onDragEnd (e) {
+      if (hoveredTrack) {
+        let segmentData = JSON.parse(selectedEl.dataset.segment)
+        let trackId = parseInt(hoveredTrack.dataset.id)
+
+        segmentData.x = (elCopy.getBoundingClientRect().left - hoveredTrack.getBoundingClientRect().left) / 12
+
+        addSegmentToTrack(segmentData, trackId)
+      }
+
+      document.body.classList.remove('grabbing')
       document.removeEventListener('mouseup', onDragEnd)
       document.removeEventListener('mousemove', onDragStart)
       document.removeEventListener('mousemove', onDrag)

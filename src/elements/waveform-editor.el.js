@@ -5,7 +5,11 @@ module.exports = function waveformEditor (state, emit) {
 
   if (!selectedSegment) {
     return html`
-      <div id="waveform-editor">empty :(</div>
+      <div id="waveform-editor">
+        <pre style="text-align: left;">
+          ${JSON.stringify(state, null, 2)}
+        </pre>
+      </div>
     `
   }
 

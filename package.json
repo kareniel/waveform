@@ -15,6 +15,7 @@
   "dependencies": {
     "audiobuffer-to-wav": "^1.0.0",
     "bel": "^4.5.1",
+    "cache-element": "^2.0.1",
     "choo": "5.0.0-2",
     "three": "^0.84.0"
   }
