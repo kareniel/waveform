@@ -1,5 +1,7 @@
 const html = require('choo/html')
 const trackEl = require('./track.el')
+const segmentLibrary = require('./segment-library.el')
+const waveformEditor = require('./waveform-editor.el')
 
 module.exports = function layout (state, emit) {
   const bars = 80
@@ -9,17 +11,22 @@ module.exports = function layout (state, emit) {
       length: 16,         // in bars
       color: 'blue',
       x: 0                // in bars
-    }, {
+    }, , {
+      id: 2,
+      length: 8,
+      color: 'green',
+      x: 48
+    }], [{
       id: 1,
       length: 4,
       color: 'orange',
       x: 32
 
-    }, {
-      id: 2,
-      length: 8,
-      color: 'green',
-      x: 48
+    },{
+      id: 3,
+      length: 2,
+      color: 'purple',
+      x: 64
     }]
   ]
   return html`
@@ -37,13 +44,8 @@ module.exports = function layout (state, emit) {
       </div>
 
       <div id="bottom-half">
-        <div id="segment-browser">
-          <p>segments</p>
-        </div>
-
-        <section id="waveform-editor">
-          <p>selected waveform</p>
-        </section>
+        ${segmentLibrary(state, emit)}
+        ${waveformEditor(state, emit)}
       </div>
     </body>
   `

@@ -24,7 +24,10 @@ module.exports = function trackEl(track, emit) {
     <div class="track" style="min-width: ${fullWidth}px;">
       ${trackGridEl({fullWidth, gridWidth})}
       ${track.map(block => html`    
-        <div class="segment-block" onmousedown=${onMouseDown} style=${style(block)}>
+        <div 
+          class="segment-block is-grabbable" 
+          onmousedown=${onMouseDown} 
+          style=${style(block)}>
         </div>`
       )}
     </div>
@@ -35,7 +38,6 @@ module.exports = function trackEl(track, emit) {
     selectedEl = e.target
     offsetX = selectedEl.parentNode.getBoundingClientRect().left
     distance = Math.abs(e.x - selectedEl.offsetLeft - offsetX)
-    console.log(distance)
 
     document.addEventListener('mousemove', onDrag)
     document.addEventListener('mouseup', function onMouseUp (e) {

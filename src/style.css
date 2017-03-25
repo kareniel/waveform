@@ -1,3 +1,11 @@
+/* -- Reset  --*/
+
+li {
+  list-style: none;
+}
+
+/* -- Layout  --*/
+
 body {
   --black: #222;
   background-color: var(--black);
@@ -9,14 +17,20 @@ body {
   height: 100%;
   width: 100%;
   max-width: 100vw;
+  overflow: hidden;
+}
+
+nav {
+  position: fixed;
 }
 
 #top-half {
   margin: auto;
   display: flex;
-  height: 50vh;
-  width: 99.8vw;
+  height: 45vh;
+  width: 99vw;
   padding: 0;
+  border: 1px solid yellow;
 }
 
 #timeline {
@@ -27,6 +41,37 @@ body {
   margin: 0;
 }
 
+#bottom-half {
+  margin: auto;
+  display: flex;
+  height: 50vh;
+  width: 99vw;
+  border: 1px solid blue;
+}
+
+#segment-library {
+  display: flex;
+  width: 30vw;
+  height: 100%;
+  margin: auto;
+  overflow-y: scroll;
+  border: 1px solid red;
+}
+
+#segment-library .segment-block {
+  margin: 0 0 30px;
+}
+
+#waveform-editor {
+  width: 70vw;
+  height: 100%;
+  margin: auto;
+  overflow-x: scroll;
+  text-align: center;
+}
+
+/* -- Elements  --*/
+
 .track {
   width: auto;
   height: 120px;
@@ -36,6 +81,11 @@ body {
   position: relative;
 }
 
+.track .segment-block {
+  display: inline-block;
+  position: absolute;
+}
+
 .track-grid {
   position: absolute;
   left: 0;
@@ -43,45 +93,35 @@ body {
 }
 
 .segment-block {
+  background-color: rgba(255,255,255,0.5);
+  height: 120px;
+  width: 240px;
+}
+
+.segment-block.is-selected {
+  border: 3px solid pink;
+}
+
+.waveform {
+  display: inline-block;
+  background-color: rgba(255,255,255,0.5);
+  width: 480px;
+  height: 180px;
+}
+
+/* -- Helpers  --*/
+
+.is-grabbable {
   cursor: move; /* fallback if grab cursor is unsupported */
   cursor: grab;
   cursor: -moz-grab;
   cursor: -webkit-grab;
-  background-color: rgba(255,255,255,0.5);
-  height: 120px;
-  width: 240px;
-  display: inline-block;
-  position: absolute;
 }
 
-.segment-block:active {
+.is-grabbable:active {
   cursor: move; /* fallback if grab cursor is unsupported */
   cursor: grabbing;
   cursor: -moz-grabbing;
   cursor: -webkit-grabbing;
-}
-
-/* - - - - - - - - */
-
-#bottom-half {
-  margin: auto;
-  display: flex;
-  height: 50vh;
-  width: 100%;
-}
-
-
-#segment-browser {
-  display: flex;
-  width: 50vw;
-  height: 100%;
-  margin: auto;
-}
-
-#waveform-editor {
-  display: flex;
-  width: 50vw;
-  height: 100%;
-  margin: auto;
-  overflow-x: scroll;
+  opacity: 0.75;
 }
