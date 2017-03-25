@@ -78,7 +78,9 @@ module.exports = function segmentLibrary (state, emit) {
 
       hoveredTrack = trackElements.filter(el => el.contains(e.target))[0]
 
+
       if (hoveredTrack) {
+        // console.log(hoveredTrack)
         return snapToTrack(e.x, e.y, hoveredTrack)
       } 
       
@@ -111,7 +113,7 @@ module.exports = function segmentLibrary (state, emit) {
     function onDragEnd (e) {
       if (hoveredTrack) {
         let segmentData = JSON.parse(selectedEl.dataset.segment)
-        let trackId = parseInt(hoveredTrack.dataset.id)
+        let trackId = hoveredTrack.dataset.id
 
         segmentData.x = (elCopy.getBoundingClientRect().left - hoveredTrack.getBoundingClientRect().left) / 12
 

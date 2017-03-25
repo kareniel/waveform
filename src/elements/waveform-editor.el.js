@@ -1,22 +1,35 @@
 const html = require('choo/html')
 
 module.exports = function waveformEditor (state, emit) {
-  const {selectedSegment} = state
+  const {selectedTrackSegment, selectedSegment} = state
 
-  if (!selectedSegment) {
+  if (selectedTrackSegment) {
     return html`
       <div id="waveform-editor">
+        <h3></h3>
+        <p>length: ${selectedTrackSegment.length}</p>
         <pre style="text-align: left;">
-          ${JSON.stringify(state, null, 2)}
+          ${JSON.stringify(selectedTrackSegment, null, 2)}
         </pre>
       </div>
     `
   }
 
-  return html`
+  if (selectedSegment) {
+    return html`
     <div id="waveform-editor">
       <h3>${selectedSegment.title}</h3>
       <div class="waveform"></div>
+    </div>
+  `
+  }
+
+
+  return html`
+    <div id="waveform-editor">
+      <pre style="text-align: left;">
+        ${JSON.stringify(state, null, 2)}
+      </pre>
     </div>
   `
 }

@@ -8,75 +8,112 @@ const barWidth = 12
 const fullWidth = bars * barWidth
 const gridWidth = barWidth
 
-let selectedEl, distance, rect, blockWidth, offsetX, max, newPos
 
 const bodyEl = document.getElementsByTagName('body')[0]
 
-function style (block) {
+function style (trackSegment) {
   return `
-    background-color: ${block.color};
-    width: ${block.length * barWidth}px; 
-    left: ${block.x * barWidth}px;
+    background-color: ${trackSegment.color};
+    width: ${trackSegment.length * barWidth}px; 
+    left: ${trackSegment.x * barWidth}px;
   `
 }
 
-module.exports = function trackEl(track, emit) {
+module.exports = function trackEl(track, selectedTrackSegment, emit) {
   return html`
     <div data-id=${track.id} class="track" style="min-width: ${fullWidth}px;">
-      ${trackGridEl({fullWidth, gridWidth})}
-      ${track.segments.map(block => html`    
-        <div 
-          class="segment-block is-grabbable" 
-          onmousedown=${onMouseDown}
-          style=${style(block)}>
-          ${block.title}
-        </div>`
+      ${trackGridEl({fullWidth, gridWidth}, emit)}
+      ${track.segments.map(trackSegment => {
+        const selected = trackSegment === selectedTrackSegment ? 'is-selected' : ''
+
+        return html`    
+          <div
+            data-id=${trackSegment.id}
+            class="segment-block is-grabbable ${selected}"
+            onmousedown=${handleDrag}
+            style=${style(trackSegment)}>
+            ${trackSegment.title}
+          </div>`
+        }
       )}
     </div>
   `
   
-  function onMouseDown (e) {
-    // keep track of the distance between mouse and left side of block
-    selectedEl = e.target
-    offsetX = selectedEl.parentNode.getBoundingClientRect().left
-    distance = Math.abs(e.x - selectedEl.offsetLeft - offsetX)
-
-    document.addEventListener('mousemove', onDrag)
-    document.addEventListener('mouseup', function onMouseUp (e) {
-      document.removeEventListener('mousemove', onDrag)
-      document.removeEventListener('mouseup', onMouseUp)
-    })
-  }
-
-
-  function onDrag (e) {
+  function handleDrag (e) {
     e.preventDefault()
 
-    rect = selectedEl.getBoundingClientRect()
-    blockWidth = rect.right - rect.left
-    max = fullWidth - blockWidth
-    newPos = (e.x - offsetX - distance)
+    let trackSegmentId = e.target.dataset.id
+    let trackId = e.target.parentNode.dataset.id
 
-    // snap to grid
-    newPos = snapToGrid(newPos)
+    emit('timeline:selectTrackSegment', {trackId, trackSegmentId})
 
-    // min
-    if (newPos <= 0) {
-      newPos = 0
+
+    let selectedEl, distance, rect, blockWidth, offsetX, max, newPos
+    
+    document.addEventListener('mousemove', onDragStart)
+    document.addEventListener('mouseup', onMouseUp)
+
+    function onDragStart () {
+      selectedEl = e.target
+      offsetX = selectedEl.parentNode.getBoundingClientRect().left
+      distance = Math.abs(e.x - selectedEl.offsetLeft - offsetX)
+      document.removeEventListener('mousemove', onDragStart)
+      document.addEventListener('mousemove', onDrag)
     }
 
-    // max
-    if (newPos >= max) {
-      newPos = max
+    function onMouseUp (e) {
+      e.preventDefault()
+      document.removeEventListener('mousemove', onDragStart)
+      document.removeEventListener('mousemove', onDrag)
+      document.removeEventListener('mouseup', onMouseUp)
+
+      if (selectedEl) {
+        let trackEl = selectedEl.parentNode
+
+        emit('timeline:moveSegment', {
+          trackId: trackEl.dataset.id,
+          trackSegmentId: e.target.dataset.id,
+          x: (newPos / 12)
+        })
+      }
+
+      selectedEl = null
+      offsetX = null
+      distance = null
+      newPos = null
     }
 
-    selectedEl.style.left = newPos + 'px'
+    function onDrag (e) {
+      e.preventDefault()
 
-    return false
-  }
+      rect = selectedEl.getBoundingClientRect()
+      blockWidth = rect.right - rect.left
+      max = fullWidth - blockWidth
+      newPos = (e.x - offsetX - distance)
 
-  function snapToGrid (x) {
-    return x - (x % 12)
+      // snap to grid
+      newPos = snapToGrid(newPos)
+
+      // min
+      if (newPos <= 0) {
+        newPos = 0
+      }
+
+      // max
+      if (newPos >= max) {
+        newPos = max
+      }
+
+      selectedEl.style.left = newPos + 'px'
+
+      return false
+    }
+
+    function snapToGrid (x) {
+      return x - (x % 12)
+    }
+
+
   }
 }
 

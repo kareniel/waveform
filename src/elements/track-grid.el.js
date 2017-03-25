@@ -1,9 +1,9 @@
 const html = require('choo/html')
 
-module.exports = function (state) {
+module.exports = function (state, emit) {
 
   let el = html`
-    <canvas class="track-grid" width=${state.fullWidth} height="120">
+    <canvas class="track-grid" width=${state.fullWidth} height="120" onclick=${onClick}>
     </canvas>
   `
 
@@ -18,4 +18,8 @@ module.exports = function (state) {
   }
 
   return el
+
+  function onClick (e) {
+    emit('timeline:deselectTrackSegment')
+  }
 }
