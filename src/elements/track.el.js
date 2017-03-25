@@ -47,7 +47,6 @@ module.exports = function trackEl(track, selectedTrackSegment, emit) {
 
     emit('timeline:selectTrackSegment', {trackId, trackSegmentId})
 
-
     let selectedEl, distance, rect, blockWidth, offsetX, max, newPos
     
     document.addEventListener('mousemove', onDragStart)

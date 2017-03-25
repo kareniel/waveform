@@ -7,7 +7,7 @@ const waveformEditor = require('./waveform-editor.el')
 module.exports = function layout (state, emit) {
   const bars = 80
   return html`
-    <body>
+    <body onclick=${onClick}>
       <nav>
         <label>length: </label>
         <input type="number" min="0" value=${bars} step="4">
@@ -24,4 +24,14 @@ module.exports = function layout (state, emit) {
       </div>
     </body>
   `
+
+  function onClick (e) {
+    const target = document.elementFromPoint(e.x, e.y)
+    const classes = [...target.classList]
+    
+    if (!classes.includes('is-grabbable')) {
+      // deselect grabbable elements
+      emit('deselect-segments')
+    }
+  }
 }

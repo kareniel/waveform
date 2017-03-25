@@ -11,6 +11,7 @@ app.route('/', require('./elements/layout.el'))
 app.mount('body')
 
 function store (state, emitter) {
+
   state.tracks = [{
     id: uuid(),
     segments: [], 
@@ -42,15 +43,44 @@ function store (state, emitter) {
 
   emitter.on('DOMContentLoaded', function () {
 
-    emitter.on('editor:selectSegment', function (segment) {
-      state.selectedSegment = segment
+
+
+    document.body.addEventListener('keydown', e => {
+      if (e.key === 'Backspace') {
+        let {selectedTrackSegment} = state 
+        if (selectedTrackSegment) {
+          let track = state.tracks
+            .find(track => track.id === selectedTrackSegment.trackId)
+          
+
+          track.segments = track.segments.filter(trackSegment => {
+            return trackSegment.id !== selectedTrackSegment.id
+          })
+
+          console.log(track.segments)
+
+          emitter.emit('render')
+
+
+          // console.log(Track)
+
+          // track.segments = track.segments.filter(segment => {
+          //   return segment.id !== selectedTrackSegment.id
+          // })
+        }
+      }
+    })
+
+    emitter.on('deselect-segments', function () {
       state.selectedTrackSegment = null 
+      state.selectedSegment = null
+
       emitter.emit('render')
     })
 
-    emitter.on('timeline:deselectTrackSegment', function (payload) {
+    emitter.on('editor:selectSegment', function (segment) {
+      state.selectedSegment = segment
       state.selectedTrackSegment = null 
-
       emitter.emit('render')
     })
 
@@ -61,6 +91,8 @@ function store (state, emitter) {
         .find(track => track.id === trackId)
         .segments
         .find(trackSegment => trackSegment.id === trackSegmentId)
+
+      selected.trackId = trackId
 
       state.selectedTrackSegment = selected 
       state.selectedSegment = null
