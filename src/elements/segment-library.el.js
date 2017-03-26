@@ -15,7 +15,7 @@ module.exports = function segmentLibrary (state, emit) {
     <div id="segment-library">
       <ul>
         ${state.segments.map(segment => {
-          let classes = ['segment-block', 'is-grabbable']
+          const classes = ['segment-block', 'is-grabbable']
 
           if (state.selectedSegment === segment) {
             classes.push('is-selected')
@@ -23,9 +23,8 @@ module.exports = function segmentLibrary (state, emit) {
 
           return html`
             <li
-              data-segment=${JSON.stringify(segment)}
+              data-id=${segment.id}
               class="${classes.join(' ')}" 
-              onclick=${e => select(segment)} 
               onmousedown=${handleDrag}
               style=${style(segment)}>
               ${segment.title}
@@ -36,22 +35,13 @@ module.exports = function segmentLibrary (state, emit) {
     </div>
   `
 
-  function select (segment) {
-    if (segment === state.selectedSegment) {
-      segment = null
-    }
-    emit('editor:selectSegment', segment)
-  }
-
-  function addSegmentToTrack (segmentData, trackId) {
-    emit('timeline:addSegmentToTrack', {segmentData, trackId})
-  }
-
   function handleDrag (e) {
     let selectedEl = e.target
     let delta = {x: 0, y: 0}
     let trackElements = [...document.getElementsByClassName('track')]
     let rect, elCopy, hoveredTrack
+    
+    emit('library:selectSegment', selectedEl.dataset.id)
 
     document.addEventListener('mousemove', onDragStart)
     document.addEventListener('mouseup', onDragEnd)
@@ -67,6 +57,9 @@ module.exports = function segmentLibrary (state, emit) {
       delta.x = Math.abs(e.x - rect.left)
       delta.y = Math.abs(e.y - rect.top)
 
+      elCopy.style.left = (e.x - delta.x) + 'px'
+      elCopy.style.top = (e.y - delta.y) + 'px' 
+
       document.body.classList.add('grabbing')
       document.body.appendChild(elCopy)
       document.addEventListener('mousemove', onDrag)
@@ -78,9 +71,7 @@ module.exports = function segmentLibrary (state, emit) {
 
       hoveredTrack = trackElements.filter(el => el.contains(e.target))[0]
 
-
       if (hoveredTrack) {
-        // console.log(hoveredTrack)
         return snapToTrack(e.x, e.y, hoveredTrack)
       } 
       
@@ -112,12 +103,11 @@ module.exports = function segmentLibrary (state, emit) {
 
     function onDragEnd (e) {
       if (hoveredTrack) {
-        let segmentData = JSON.parse(selectedEl.dataset.segment)
+        let segmentId = selectedEl.dataset.id
         let trackId = hoveredTrack.dataset.id
+        let x = (elCopy.getBoundingClientRect().left - hoveredTrack.getBoundingClientRect().left) / 12
 
-        segmentData.x = (elCopy.getBoundingClientRect().left - hoveredTrack.getBoundingClientRect().left) / 12
-
-        addSegmentToTrack(segmentData, trackId)
+        emit('timeline:addSegmentToTrack', {x, trackId, segmentId})
       }
 
       document.body.classList.remove('grabbing')

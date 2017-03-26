@@ -1,5 +1,4 @@
 const html = require('choo/html')
-// const widget = require('cache-element/widget')
 const trackEl = require('./track.el')
 
 module.exports = function timelineEditor (state, emit) {

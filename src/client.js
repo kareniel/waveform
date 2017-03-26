@@ -57,16 +57,7 @@ function store (state, emitter) {
             return trackSegment.id !== selectedTrackSegment.id
           })
 
-          console.log(track.segments)
-
           emitter.emit('render')
-
-
-          // console.log(Track)
-
-          // track.segments = track.segments.filter(segment => {
-          //   return segment.id !== selectedTrackSegment.id
-          // })
         }
       }
     })
@@ -78,9 +69,12 @@ function store (state, emitter) {
       emitter.emit('render')
     })
 
-    emitter.on('editor:selectSegment', function (segment) {
-      state.selectedSegment = segment
+    emitter.on('library:selectSegment', function (segmentId) {
+      const selected = state.segments.find(segment => segment.id === segmentId)
+
+      state.selectedSegment = selected
       state.selectedTrackSegment = null 
+
       emitter.emit('render')
     })
 
@@ -114,11 +108,11 @@ function store (state, emitter) {
     })
 
     emitter.on('timeline:addSegmentToTrack', function (payload) {
-      const {segmentData, trackId} = payload
-      const trackSegment = Object.assign({}, segmentData, {
-        segmentId: segmentData.id,
-        id: uuid(),
-      })
+      const {x, segmentId, trackId} = payload
+      const id = uuid()
+
+      const segment = state.segments.find(segment => segment.id === segmentId)
+      const trackSegment = Object.assign({}, segment, {x, segmentId, id})
 
       state.tracks.map(track => {
         if (track.id === trackId) {
