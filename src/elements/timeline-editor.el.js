@@ -1,9 +1,9 @@
 const html = require('choo/html')
 const trackEl = require('./track.el')
 
-module.exports = function timelineEditor (state, emit) {
+module.exports = function arranger (state, emit) {
   return html`
-    <section id="timeline">
+    <section id="arranger">
       ${state.tracks.map(track => {
         return trackEl(track, state.selectedTrackSegment, emit)
       })}

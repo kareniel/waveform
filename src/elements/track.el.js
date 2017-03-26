@@ -45,7 +45,7 @@ module.exports = function trackEl(track, selectedTrackSegment, emit) {
     let trackSegmentId = e.target.dataset.id
     let trackId = e.target.parentNode.dataset.id
 
-    emit('timeline:selectTrackSegment', {trackId, trackSegmentId})
+    emit('arranger:selectTrackSegment', {trackId, trackSegmentId})
 
     let selectedEl, distance, rect, blockWidth, offsetX, max, newPos
     
@@ -69,7 +69,7 @@ module.exports = function trackEl(track, selectedTrackSegment, emit) {
       if (selectedEl) {
         let trackEl = selectedEl.parentNode
 
-        emit('timeline:moveSegment', {
+        emit('arranger:moveSegment', {
           trackId: trackEl.dataset.id,
           trackSegmentId: e.target.dataset.id,
           x: (newPos / 12)

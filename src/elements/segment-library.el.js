@@ -107,7 +107,7 @@ module.exports = function segmentLibrary (state, emit) {
         let trackId = hoveredTrack.dataset.id
         let x = (elCopy.getBoundingClientRect().left - hoveredTrack.getBoundingClientRect().left) / 12
 
-        emit('timeline:addSegmentToTrack', {x, trackId, segmentId})
+        emit('arranger:addSegmentToTrack', {x, trackId, segmentId})
       }
 
       document.body.classList.remove('grabbing')

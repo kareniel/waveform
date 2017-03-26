@@ -1,6 +1,6 @@
 const html = require('choo/html')
 const trackEl = require('./track.el')
-const timelineEditor = require('./timeline-editor.el')
+const arranger = require('./arranger.el')
 const segmentLibrary = require('./segment-library.el')
 const waveformEditor = require('./waveform-editor.el')
 
@@ -15,7 +15,7 @@ module.exports = function layout (state, emit) {
       </nav>
 
       <div id="top-half">
-        ${timelineEditor(state, emit)}
+        ${arranger(state, emit)}
       </div>
 
       <div id="bottom-half">
