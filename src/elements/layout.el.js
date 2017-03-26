@@ -5,21 +5,32 @@ const segmentLibrary = require('./segment-library.el')
 const waveformEditor = require('./waveform-editor.el')
 
 module.exports = function layout (state, emit) {
-  const bars = 80
   return html`
     <body onclick=${onClick}>
-      <nav>
-        <label>length: </label>
-        <input type="number" min="0" value=${bars} step="4">
-        <span>bars</span>
+      <nav id="nav-bar">
+        <div></div>
+        <div>
+          <h1>mix editor</h1>
+        </div>
+        <div></div>
       </nav>
 
       <div id="top-half">
+        <nav id="arranger-menu">
+          <div>
+            <label>mix length: </label>
+            <input type="number" min="0" value=${state.mixLength} step="4">
+            <span>bars</span>
+          </div>
+        </nav>
         ${arranger(state, emit)}
       </div>
 
+      <div class="horizontal-separator"></div>
+
       <div id="bottom-half">
         ${segmentLibrary(state, emit)}
+        <div class="vertical-separator"></div>
         ${waveformEditor(state, emit)}
       </div>
     </body>

@@ -7,7 +7,7 @@ li {
 /* -- Layout  --*/
 
 body {
-  --black: #222;
+  --black: #191919;
   background-color: var(--black);
   color: white;
   margin: 0;
@@ -20,8 +20,14 @@ body {
   overflow: hidden;
 }
 
-nav {
-  position: fixed;
+#nav-bar {
+  display: flex;
+  height: 40px;
+  background-color: black;
+}
+#nav-bar h1 {
+  color: white;
+  font-size: 1em;
 }
 
 #top-half {
@@ -30,15 +36,29 @@ nav {
   height: 45vh;
   width: 99vw;
   padding: 0;
-  border: 1px solid yellow;
 }
 
 #arranger {
   display: block;
   width: 100%;
   overflow-x: scroll;
-  padding: 60px 30px;
+  padding: 60px 3px;
   margin: 0;
+}
+
+.horizontal-separator {
+  height: 4px;
+  background-color: rgba(100, 100, 100, 1);
+  border-top: solid 1px rgba(255, 255, 255, 0.5);
+  border-bottom: solid 1px rgba(0, 0, 0, 0.5);
+}
+
+.vertical-separator {
+  width: 4px;
+  height: 100%;
+  background-color: rgba(100, 100, 100, 1);
+  border-left: solid 1px rgba(255, 255, 255, 0.5);
+  border-right: solid 1px rgba(0, 0, 0, 0.5);
 }
 
 #bottom-half {
@@ -46,7 +66,6 @@ nav {
   display: flex;
   height: 50vh;
   width: 99vw;
-  border: 1px solid blue;
 }
 
 #segment-library {
@@ -55,7 +74,6 @@ nav {
   height: 100%;
   margin: auto;
   overflow-y: scroll;
-  border: 1px solid red;
 }
 
 #segment-library .segment-block {
@@ -80,6 +98,7 @@ nav {
   background-color: black;
   overflow-x: scroll;
   position: relative;
+  margin-bottom: 10px;
 }
 
 .track .segment-block {

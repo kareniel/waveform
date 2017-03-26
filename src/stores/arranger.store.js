@@ -83,6 +83,7 @@ function sortByX (a, b) {
 }
 
 function initState (state) {
+  state.mixLength = 80
   state.tracks = [{
     id: uuid(),
     segments: [], 
