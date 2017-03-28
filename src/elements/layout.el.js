@@ -16,13 +16,6 @@ module.exports = function layout (state, emit) {
       </nav>
 
       <div id="top-half">
-        <nav id="arranger-menu">
-          <div>
-            <label>mix length: </label>
-            <input type="number" min="0" value=${state.mixLength} step="4">
-            <span>bars</span>
-          </div>
-        </nav>
         ${arranger(state, emit)}
       </div>
 

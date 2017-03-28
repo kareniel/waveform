@@ -34,17 +34,29 @@ body {
   margin: auto;
   display: flex;
   height: 45vh;
-  width: 99vw;
+  width: 100vw;
   padding: 0;
 }
 
 #arranger {
-  display: block;
   width: 100%;
   overflow-x: scroll;
-  padding: 60px 3px;
+  /*padding: 60px 3px;*/
   margin: 0;
 }
+
+#arranger-menu {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 40px;
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+#arranger-tracks {
+  padding: 20px 60px;
+}
+
 
 .horizontal-separator {
   height: 4px;

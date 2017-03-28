@@ -7,7 +7,7 @@ module.exports = function libraryStore (state, emitter) {
 
     emitter.on('deselect-segments', function () {
       state.selectedSegment = null
-      emitter.emit('render')
+      // emitter.emit('render')
     })
 
     emitter.on('library:selectSegment', function (segmentId) {
@@ -16,7 +16,7 @@ module.exports = function libraryStore (state, emitter) {
       state.selectedSegment = selected
       state.selectedTrackSegment = null 
 
-      emitter.emit('render')
+      // emitter.emit('render')
     })
   })
 }

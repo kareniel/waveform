@@ -87,7 +87,6 @@ module.exports = function segmentLibrary (state, emit) {
 
       if (Math.abs(rect.top - top) < 12) {
 
-
         // snap to top of track
         top = rect.top
 
